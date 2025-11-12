@@ -10,11 +10,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         "phone_number",
         "is_email_verified",
         "is_superuser",
-        "is_staff",
-        "has_question_access",
-        "remaining_questions",
-        "date_joined",   # ✅ added
-    )
+        "is_staff"    )
     search_fields = (
         "full_name",
         "email",
@@ -24,13 +20,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         "is_email_verified",
         "is_superuser",
         "is_staff",
-        "has_question_access",
-        "date_joined",   # ✅ filter by join date
     )
-    ordering = ("-date_joined",)  # ✅ show newest users first
 
 admin.site.register(User, CustomUserAdmin)
-# admin.site.register(UserPermission)
-
-# Unregister the Group model
 admin.site.unregister(Group)

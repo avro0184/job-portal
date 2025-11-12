@@ -58,7 +58,7 @@ export default function Chatbot() {
           {/* Messages */}
           <div className="p-4 flex-1 overflow-y-auto space-y-3 bg-gray-50 dark:bg-gray-800 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
             {messages.length === 0 && (
-              <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-center text-sm text-gray-500 dark:text-gray-400 ">
                 👋 Start a conversation with AmarProsno AI
               </p>
             )}

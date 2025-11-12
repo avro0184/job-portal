@@ -39,7 +39,7 @@ CORS_ALLOW_METHODS = list(default_methods)
 
 
 # Channels
-ASGI_APPLICATION = 'mcq_server.asgi.application'
+ASGI_APPLICATION = 'job_server.asgi.application'
 
 # Celery (optional beat)
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")

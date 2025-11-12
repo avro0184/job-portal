@@ -62,23 +62,8 @@ class ProfileDetailAPIView(APIView):
         user = request.user if request.user and request.user.is_authenticated else None
 
         if user:
-            # Full data for authenticated user
-            serializer = UserSerializer(user, context={'request': request})
-            data = serializer.data
-        else:
-            # Limited data for anonymous request
-            context = {'request': request}
-            data = {
-                'allowed_classes': UserSerializer().get_allowed_classes(None),
-                # 'mock_exam_classess': UserSerializer(context=context).get_mock_exam_classess(None),
-                'enrolled_exams': [],
-                'institution_groups': UserSerializer(context=context).get_institution_groups(None),
-                'allowsed_subjects_mentor': [],
-                'years': UserSerializer(context=context).get_years(None)
-            }
-
-        encrypted = encrypt_data(data)
-        return Response(encrypted, status=status.HTTP_200_OK)
+            serializer = UserSerializer(user)
+            return Response({"success": True, "user": serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request , pk=None):
         if pk:
@@ -136,7 +121,7 @@ class ProfileDetailAPIView(APIView):
             return Response({
                 "success": True,
                 "message": _("Profile updated successfully"),
-                "data": encrypt_data(UserSerializer(user).data)
+                "data": (UserSerializer(user).data)
             }, status=status.HTTP_200_OK)
 
 
@@ -163,10 +148,9 @@ class ProfileMeAPIView(APIView):
         serializer = UserSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": _("Profile updated."), "user": encrypt_data(serializer.data)})
+            return Response({"message": _("Profile updated."), "user": (serializer.data)})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-from utils.encryption import *
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
@@ -175,8 +159,8 @@ class LoginAPIView(APIView):
             user = serializer.validated_data['user']
             refresh_token = RefreshToken.for_user(user)
             access_token = str(refresh_token.access_token)
-            enc_access_token = encrypt_data(access_token)
-            enc_refresh_token = encrypt_data(str(refresh_token))
+            enc_access_token = (access_token)
+            enc_refresh_token = (str(refresh_token))
  
             return Response({
                 "success": True,
@@ -185,8 +169,13 @@ class LoginAPIView(APIView):
                 "access": enc_access_token,
                 "email": user.email,
             }, status=status.HTTP_200_OK)
+        first_error = next(iter(serializer.errors.values()))[0]
 
-        return Response({"success": False, "error": _("Invalid credentials.")}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            "success": False,
+            "error": str(first_error)
+        }, status=status.HTTP_400_BAD_REQUEST)
+
     
 
 
@@ -328,9 +317,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
 
-GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
-FB_APP_ID = settings.FB_APP_ID
-FB_APP_SECRET = settings.FB_APP_SECRET
+# GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
+# FB_APP_ID = settings.FB_APP_ID
+# FB_APP_SECRET = settings.FB_APP_SECRET
 
 
 def get_tokens_for_user(user):
@@ -364,8 +353,8 @@ class GoogleLoginAPIView(APIView):
             refresh = RefreshToken.for_user(user)
             return Response({
                 "success": True,
-                "access": encrypt_data(str(refresh.access_token)),
-                "refresh": encrypt_data(str(refresh)),
+                "access": (str(refresh.access_token)),
+                "refresh": (str(refresh)),
                 "email": user.email
             })
         except Exception as e:
@@ -398,8 +387,8 @@ class FacebookLoginAPIView(APIView):
             refresh = RefreshToken.for_user(user)
             return Response({
                 "success": True,
-                "access": encrypt_data(str(refresh.access_token)),
-                "refresh": encrypt_data(str(refresh)),
+                "access": (str(refresh.access_token)),
+                "refresh": (str(refresh)),
                 "email": user.email
             })
         except Exception as e:

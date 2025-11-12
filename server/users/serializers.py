@@ -2,29 +2,15 @@ from rest_framework import serializers
 from django.core.validators import RegexValidator
 from .models import *
 from django.contrib.auth import authenticate
-from mcq.serializers import *
-from mcq.models import ClassName  
-from mcq.halper import *
-from exam.serializers import *
-from existing_question.serializers import *
 from django.utils.translation import gettext as _
 
 
 class UserSerializer(serializers.ModelSerializer):
-    allowed_classes = serializers.SerializerMethodField()
-    # mock_exam_classess = serializers.SerializerMethodField()
-    institution_groups = serializers.SerializerMethodField()
-    allowsed_subjects_mentor = serializers.SerializerMethodField()
-    years = serializers.SerializerMethodField()
-    topics = serializers.SerializerMethodField()
-
     class Meta:
         model = User
         fields = [
-            'id', 'email', 'full_name', 'password', 'last_login', 'date_joined', 'phone_number',
-            'allowed_classes', 'is_superuser', 'has_question_access', 'is_active', 'is_staff',
-            'remaining_questions' ,"max_upload_questions",
-            'institution_groups' , "allowsed_subjects_mentor", "years" , "max_group" , "max_exam_in_group" , "topics"
+            'id', 'email', 'full_name', 'password', 'phone_number',
+             'is_superuser', 'is_active', 'is_staff'
         ]
         extra_kwargs = {
             'password': {'write_only': True},
@@ -33,49 +19,8 @@ class UserSerializer(serializers.ModelSerializer):
             'is_active': {'read_only': False},
             'last_login': {'read_only': True},
             'date_joined': {'read_only': True},
-            'has_question_access': {'read_only': True},
-            'remaining_questions': {'read_only': True},
-            'allowed_classes': {'read_only': True},
-            'has_question_upload_access' : {'read_only': True},
-            'max_upload_questions' : {'read_only': True},
-            'institution_groups' : {'read_only': True},
-            'allowsed_subjects_mentor' : {'read_only': True},
-            'years' : {'read_only': True} , 
-            'max_group' : {'read_only': True} , 
-            'max_exam_in_group' : {'read_only': True}
         }
     
-    def get_years(self, obj):
-        return YearSerializer(Year.objects.all(), many=True, context=self.context).data
-
-    def get_topics(self, obj):
-        return list(obj.topics.values_list("name", flat=True))
-    
-    # def get_mock_exam_classess(self, obj):
-    #     all_class = ClassName.objects.prefetch_related(
-    #         'subjects__faculty', 
-    #         'subjects__subject', 
-    #         'subjects__paper', 
-    #         'subjects__chapters'
-    #     ).all()
-    #     return ClassNameSerializer(all_class, many=True, context=self.context).data
-    
-    
-    def get_institution_groups(self, obj):
-        return GroupOfInstitutionShortSerializer(GrpupOfInstitutionnName.objects.all(), many=True, context=self.context).data
-        
-    def get_allowsed_subjects_mentor(self, obj):
-        try:
-            request = self.context.get("request")
-            user = request.user if request and request.user.is_authenticated else None
-            if user and hasattr(user, 'mentors_access'):
-                return SubjectSerializer(user.mentors_access.all(), many=True).data
-        except Exception as e:
-            return []
-    
-    def get_allowed_classes(self, obj):
-        return ClassNameShortSerializer( ClassName.objects.all(), many=True, context=self.context).data
-
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError(_("User with this email already exists."))
@@ -144,7 +89,7 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, data):
         email = data.get('email')
         password = data.get('password')
-
+        print(email,password)
         if not email or not password:
             raise serializers.ValidationError({"error": _("Email and password are required.")})
 
@@ -157,7 +102,6 @@ class LoginSerializer(serializers.Serializer):
         if not is_password_usable(user.password):
             raise serializers.ValidationError({"error": _("Password is corrupted. Please reset your password.")})
 
-        # ✅ Authenticate normally
         user = authenticate(email=email, password=password)
         if not user:
             raise serializers.ValidationError({"error": _("Invalid credentials.")})

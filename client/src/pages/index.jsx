@@ -71,7 +71,9 @@ export default function HomePage() {
       </Head>
 
       <div className="overflow-y-scroll bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white no-scrollbar">
-        
+        <Header />
+        {/* existing code  */}
+        <Footer />
         <div className="fixed bottom-6 right-6 flex flex-col items-end space-y-4 z-50">
           <ScrollToTopButton />
           <FloatingSettings />

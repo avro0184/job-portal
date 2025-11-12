@@ -22,10 +22,8 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
 
 
-    # Social login endpoints
     path('google/', GoogleLoginAPIView.as_view(), name='google-login'),
     path('facebook/', FacebookLoginAPIView.as_view(), name='facebook-login'),
 
     
-    path('update-fcm-token/', UpdateFcmTokenAPIView.as_view(), name='update-fcm-token'),
 ]

@@ -115,7 +115,7 @@ def send_password_reset_email(user, reset_link):
     text_content = f"""
 Hi {user.full_name},
 
-We received a request to reset the password for your Amar Prosno account. If you didn’t request this, you can safely ignore this email.
+We received a request to reset the password for your MLFLow account. If you didn’t request this, you can safely ignore this email.
 
 To reset your password, click the link below:
 {reset_link}
