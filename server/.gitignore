@@ -1,0 +1,23 @@
+# Virtual environment
+env/
+
+# Environment variable files
+.env
+
+# User-uploaded media
+media/
+
+# Django static files (if built by collectstatic)
+staticfiles/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# SQLite (optional)
+*.sqlite3
+
+# VS Code & editor junk (optional)
+.vscode/

@@ -1,0 +1,233 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+.noselect {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: "Tiro Bangla", sans-serif;
+}
+
+/* =========================
+   General Utilities
+========================= */
+
+.nocopy {
+  pointer-events: none;
+  user-select: none;
+}
+
+.blur-content {
+  filter: blur(8px);
+  transition: filter 0.5s ease-in-out;
+}
+
+.devtools-blocked {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: black;
+  color: red;
+}
+
+.hidden-content {
+  display: none !important;
+}
+
+/* =========================
+   Scrollbars
+========================= */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tw-prose-body) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 1px;
+  height: 2px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #3128ed;
+  border-radius: 8px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #2563eb;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+input {
+  cursor: pointer;
+}
+input[type="radio"] {
+  accent-color: #6754e8;
+}
+input[type="checkbox"] {
+  accent-color: #6754e8;
+  cursor: pointer;
+}
+
+.custom-prose p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* =========================
+   Page Break Controls
+========================= */
+.break-inside-avoid {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  display: block;
+}
+.break-inside-auto {
+  break-inside: auto;
+}
+
+/* =========================
+   PRINT styles
+========================= */
+@media print {
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+  }
+  * {
+    box-sizing: border-box !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  p {
+    margin: 0 !important;
+  }
+
+  /* Ensure exact A4 size */
+  .page, .print-page {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    page-break-after: always;
+    page-break-before: always;
+    page-break-inside: avoid;
+    break-after: always;
+    break-before: always;
+    break-inside: avoid;
+  }
+
+  .print-no-shadow { box-shadow: none !important; }
+  .print-no-margin { margin: 0 !important; }
+  .print-no-padding { padding: 0 !important; }
+  .print-no-border { border: 0 !important; }
+
+  header, footer {
+    display: none !important;
+  }
+
+  .question-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}
+
+/* =========================
+   SCREEN styles
+========================= */
+@media screen {
+  .page {
+    width: 100%;
+    height: auto;
+    page-break-after: avoid;
+  }
+}
+
+
+.break-inside-avoid-page {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+.break-inside-auto {
+  break-inside: auto !important;
+  page-break-inside: auto !important;
+}
+
+
+
+
+
+/* =========================
+   QUESTION LAYOUT CONTROL
+========================= */
+
+/* ✅ Each question (stem + options) should stay together */
+.measure-question,
+.question-block {
+  break-inside: avoid-page !important;
+  page-break-inside: avoid !important;
+  overflow-wrap: break-word !important;
+  display: block;
+}
+
+/* ✅ Keep question text + options together (no mid-split) */
+.measure-question .question-section,
+.measure-question .options-section {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+/* ✅ Allow explanation to flow naturally to next page if long */
+.measure-question .explanation-section {
+  break-inside: auto !important;
+  page-break-inside: auto !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+
+/* ✅ Optional: prevent text from breaking awkwardly near page edges */
+p, h5, span {
+  orphans: 3;
+  widows: 3;
+}
+
+/* ✅ When printing, preserve these behaviors perfectly */
+@media print {
+  .measure-question,
+  .question-block {
+    break-inside: avoid-page !important;
+    page-break-inside: avoid !important;
+  }
+
+  .measure-question .explanation-section {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+}
+
