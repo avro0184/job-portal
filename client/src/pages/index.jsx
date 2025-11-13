@@ -9,6 +9,9 @@ import CategoriesSection from "@/components/home/CategoriesSection";
 import CompaniesSection from "@/components/home/CompaniesSection";
 import FloatingActions from "@/components/home/FloatingActions";
 import Header from "@/components/home/Header";
+import JobFilters from "@/components/home/JobFilters";
+import CareerAdviceSection from "@/components/home/CareerAdviceSection";
+import FeaturedCompaniesCarousel from "@/components/home/FeaturedCompaniesCarousel";
 import PopularTags from "@/components/home/PopularTags";
 import BlogSection from "@/components/home/BlogSection";  
 import Footer from "@/components/home/Footer";
@@ -123,31 +126,36 @@ export default function HomePage() {
         <Hero />
           <StatsSection />
         <section className="mx-auto max-w-6xl px-4 pb-16 lg:px-0">
-    <div className="mt-10 grid gap-8 lg:grid-cols-3">
-      <div className="space-y-10 lg:col-span-2">
-         <div className="mt-10 grid gap-8 lg:grid-cols-3">
-
-    {/* LEFT COLUMN: Popular Searches */}
-    <div className="lg:col-span-1">
+  {/* Row: Popular tags (left) + Featured jobs (middle) + Blog (right) */}
+  <div className="mt-10 grid gap-8 lg:grid-cols-4">
+    {/* LEFT: Popular Searches */}
+     <div className="lg:col-span-1">
+      <JobFilters onApply={(filters) => console.log("FILTERS", filters)} />
       <PopularTags />
     </div>
 
-    {/* RIGHT COLUMN: Featured Jobs (ONE COLUMN mode) */}
+    {/* MIDDLE: Featured Jobs (single column) */}
     <div className="lg:col-span-2">
       <FeaturedJobsSection jobs={featuredJobs} singleColumn={true} />
     </div>
 
-  </div>
-        <CategoriesSection categories={categories} />
-        <CompaniesSection companies={companies} />
-      </div>
-
-      <div className="space-y-6">
-        <BlogSection />
-      </div>
+    {/* RIGHT: Blog sidebar – limited to this row only */}
+    <div className="lg:col-span-1">
+      <BlogSection />
     </div>
-  </section>
+  </div>
 
+  {/* BELOW: everything goes full-width single column */}
+  <div className="mt-12 space-y-10">
+    <CategoriesSection categories={categories} />
+
+    {/* Optional: carousel here */}
+    <FeaturedCompaniesCarousel />
+
+    <CompaniesSection companies={companies} />
+  </div>
+</section>
+<CareerAdviceSection />
         
 
         
