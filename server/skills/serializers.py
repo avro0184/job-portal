@@ -60,19 +60,22 @@ class UserSkillSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context["request"].user
-        validated_data["user"] = user
+        skill = validated_data["skill"]
 
         # prevent duplicates
-        if UserSkill.objects.filter(user=user, skill=validated_data["skill"]).exists():
+        if UserSkill.objects.filter(user=user, skill=skill).exists():
             raise serializers.ValidationError("Skill already added.")
 
+        validated_data["user"] = user
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        instance.proficiency_percentage = validated_data.get("proficiency_percentage", instance.proficiency_percentage)
+        instance.proficiency_percentage = validated_data.get(
+            "proficiency_percentage",
+            instance.proficiency_percentage
+        )
         instance.update_level()
         return instance
-
 
 # -------------------------------------------------
 # Skill Test Serializer
@@ -86,7 +89,8 @@ class SkillTestSerializer(serializers.ModelSerializer):
             "duration_minutes", "total_marks",
             "version", "randomize_questions",
             "created_at"
-        ]
+        
+]
 
 
 # -------------------------------------------------
@@ -102,27 +106,73 @@ class SkillQuestionSerializer(serializers.ModelSerializer):
         ]
 
 
+
+
+class SkillTestDetailSerializer(serializers.ModelSerializer):
+    questions = SkillQuestionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SkillTest
+        fields = [
+            "id", "title", "description", "skill",
+            "difficulty", "duration_minutes", "total_marks",
+            "questions"
+        ]
+
+
+
+class SubmitTestSerializer(serializers.Serializer):
+    answers = serializers.DictField(
+        child=serializers.CharField(),
+        write_only=True
+    )
+
+    def validate_answers(self, value):
+        if len(value) != 15:
+            raise serializers.ValidationError("You must answer exactly 15 questions.")
+
+        for qid, opt in value.items():
+            if opt not in ["A", "B", "C", "D"]:
+                raise serializers.ValidationError(f"Invalid answer choice for question {qid}")
+
+        return value
+
+
 # -------------------------------------------------
 # Skill Test Result Serializer
 # -------------------------------------------------
-class UserSkillTestResultSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserSkillTestResult
-        fields = [
-            "id", "user", "test",
-            "score", "percentage",
-            "passed", "taken_at"
-        ]
+class SubmitTestSerializer(serializers.Serializer):
+    answers = serializers.DictField(
+        child=serializers.CharField(),
+        write_only=True
+    )
+
+    def validate_answers(self, value):
+        if len(value) != 15:
+            raise serializers.ValidationError("You must answer exactly 15 questions.")
+
+        for qid, opt in value.items():
+            if opt not in ["A", "B", "C", "D"]:
+                raise serializers.ValidationError(f"Invalid answer choice for question {qid}")
+
+        return value
 
 
 # -------------------------------------------------
 # Skill Progress Serializer
 # -------------------------------------------------
-class UserSkillProgressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserSkillProgress
-        fields = [
-            "id", "user", "skill",
-            "proficiency_percentage",
-            "timestamp"
-        ]
+class SubmitTestSerializer(serializers.Serializer):
+    answers = serializers.DictField(
+        child=serializers.CharField(),
+        write_only=True
+    )
+
+    def validate_answers(self, value):
+        if len(value) != 15:
+            raise serializers.ValidationError("You must answer exactly 15 questions.")
+
+        for qid, opt in value.items():
+            if opt not in ["A", "B", "C", "D"]:
+                raise serializers.ValidationError(f"Invalid answer choice for question {qid}")
+
+        return value
