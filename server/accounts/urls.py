@@ -48,9 +48,9 @@ urlpatterns = [
     path("profile/", UserProfileView.as_view(), name="profile"),
 
     path("dropdown/degrees/", DegreeListView.as_view()),
-    path("dropdown/skills/", SkillListView.as_view()),
 
-
+    
+    path("user-comapay-and-institution-profile/", UserCompanyInstitutionProfileAPIView.as_view()),
 
 
 ]

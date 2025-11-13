@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from .managers import CustomUserManager
 from pgvector.django import VectorField   # AI-ready optional
+from skills.models import Skill, SkillLevel
 
 
 # ----------------------------------------------------------
@@ -55,29 +56,19 @@ class User(AbstractUser):
 
     # Helper properties
     @property
-    def is_student(self):
-        return self.roles.filter(name="student").exists()
+    def is_company(self):
+        return self.roles.filter(name__iexact="Company").exists()
 
     @property
-    def is_company(self):
-        return self.roles.filter(name="company").exists()
+    def is_student(self):
+        return self.roles.filter(name__iexact="Job Seeker").exists()
 
     @property
     def is_institution(self):
-        return self.roles.filter(name="institution").exists()
-
-class Skill(models.Model):
-    name = models.CharField(max_length=150, unique=True)
-
-    def __str__(self):
-        return self.name
+        return self.roles.filter(name__iexact="Institution").exists()
 
 
-class SkillLevel(models.TextChoices):
-    BEGINNER = "beginner", "Beginner"
-    INTERMEDIATE = "intermediate", "Intermediate"
-    ADVANCED = "advanced", "Advanced"
-    EXPERT = "expert", "Expert"
+
 
 class Degree(models.Model):
     name = models.CharField(max_length=200, unique=True)
@@ -95,13 +86,6 @@ class UserEducation(models.Model):
     def __str__(self):
         return f"{self.degree} at {self.institution}"
 
-class UserSkill(models.Model):
-    profile = models.ForeignKey("Profile", on_delete=models.CASCADE, related_name="skills")
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    level = models.CharField(max_length=20, choices=SkillLevel.choices)
-
-    def __str__(self):
-        return f"{self.skill.name} ({self.level})"
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
@@ -184,3 +168,5 @@ class InstitutionProfile(models.Model):
 
     def __str__(self):
         return self.institution_name
+    
+

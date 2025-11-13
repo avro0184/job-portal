@@ -8,9 +8,8 @@ import {
 
 import toast from "react-hot-toast";
 import apiRequest from "@/utils/api";
-import { getToken } from "@/utils/auth";
 
-export default function StudentProfilePanel({ profile, token }) {
+export default function StudentProfilePanel({ profile, token , callUserInfo }) {
 
     // -------------------------------
     // Base Form
@@ -93,7 +92,7 @@ export default function StudentProfilePanel({ profile, token }) {
     const loadDropdowns = async () => {
         try {
             const d = await apiRequest("/auth/dropdown/degrees/", "GET", token);
-            const s = await apiRequest("/auth/dropdown/skills/", "GET", token);
+            const s = await apiRequest("/dropdown/skills/", "GET", token);
 
             setDegrees(d || []);
             setSkillsList(s || []);
@@ -140,9 +139,8 @@ export default function StudentProfilePanel({ profile, token }) {
                 callUserInfo();
             } 
         } catch (err) {
-            if (err) {
-                setErrors(err);
-            }
+            console.log(err)
+            setErrors(err);
             toast.error("Error updating profile");
         }
     };

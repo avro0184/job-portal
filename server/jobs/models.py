@@ -3,18 +3,26 @@ from django.db import models
 from django.conf import settings
 from skills.models import Skill
 from pgvector.django import VectorField
-
+from accounts.models import CompanyProfile
+from skills.models import Skill ,SkillLevel
+from django.contrib.postgres.fields import ArrayField
 
 # -------------------------------------------------------
 # Job Model (Advanced + ATS-Ready + AI-Ready)
 # -------------------------------------------------------
 class Job(models.Model):
-    EXPERIENCE = [
+    EXPERIENCE_LEVELS = [
         ("Fresher", "Fresher"),
         ("Junior", "Junior"),
         ("Mid", "Mid"),
         ("Senior", "Senior"),
         ("Lead", "Lead"),
+    ]
+
+    EMPLOYMENT_MODE = [
+        ("Remote", "Remote"),
+        ("Hybrid", "Hybrid"),
+        ("On-site", "On-site"),
     ]
 
     JOB_TYPES = [
@@ -25,66 +33,65 @@ class Job(models.Model):
         ("Contract", "Contract"),
     ]
 
-    EMPLOYMENT_MODE = [
-        ("Remote", "Remote"),
-        ("Hybrid", "Hybrid"),
-        ("On-site", "On-site"),
-    ]
-
+    # Basic Job info
     title = models.CharField(max_length=255)
-    company = models.CharField(max_length=255)
-
-    # If company has a profile
-    company_profile = models.ForeignKey(
-        "accounts.CompanyProfile",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="company_jobs"
-    )
-
-    location = models.CharField(max_length=255)
-    employment_mode = models.CharField(max_length=50, choices=EMPLOYMENT_MODE)
-
-    job_type = models.CharField(max_length=50, choices=JOB_TYPES)
-    experience_level = models.CharField(max_length=50, choices=EXPERIENCE)
-
     description = models.TextField()
     responsibilities = models.TextField(null=True, blank=True)
     benefits = models.TextField(null=True, blank=True)
 
-    required_skills = models.ManyToManyField(Skill, blank=True, related_name="jobs")
-    required_skill_level = models.CharField(     # new (Beginner–Master)
-        max_length=20,
+    # Company
+    company_profile = models.ForeignKey(
+        CompanyProfile,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        choices=[
-            ("Novice","Novice"),
-            ("Beginner","Beginner"),
-            ("Intermediate","Intermediate"),
-            ("Skilled","Skilled"),
-            ("Advanced","Advanced"),
-            ("Expert","Expert"),
-            ("Master","Master"),
-        ]
+        related_name="jobs"
     )
 
     posted_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,
-        related_name="posted_jobs"
+        related_name="jobs_posted"
     )
 
+    # Work Details
+    location = models.CharField(max_length=255)
+
+    employment_mode = ArrayField(
+        models.CharField(max_length=50, choices=EMPLOYMENT_MODE),
+        default=list,
+        blank=True,
+        null=True
+    )
+
+    job_type = ArrayField(
+        models.CharField(max_length=50, choices=JOB_TYPES),
+        default=list,
+        blank=True,
+        null=True
+    )
+
+    experience_level = ArrayField(
+        models.CharField(max_length=50, choices=EXPERIENCE_LEVELS),
+        default=list,
+        blank=True,
+        null=True
+    )
+
+    # Skills
+    required_skills = models.ManyToManyField(Skill, blank=True, related_name="job_listings")
+
+    # Salary
     salary_min = models.IntegerField(null=True, blank=True)
     salary_max = models.IntegerField(null=True, blank=True)
-    salary_currency = models.CharField(max_length=10, default="USD")
+    salary_currency = models.CharField(max_length=10, default="BDT")
 
+    # Deadline
     deadline = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
-    # Screening questions (ATS-style)
+    # ATS Screening
     screening_questions = models.JSONField(null=True, blank=True)
 
     # AI fields
@@ -93,53 +100,81 @@ class Job(models.Model):
     ai_summary = models.TextField(null=True, blank=True)
     ai_skill_match_score = models.FloatField(null=True, blank=True)
 
+    # Trending
     trending_score = models.FloatField(default=0)
     views_count = models.PositiveIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["title"]),
+            models.Index(fields=["location"]),
+        ]
+
     def __str__(self):
-        return f"{self.title} — {self.company}"
+        return f"{self.title} – {self.company_profile.company_name if self.company_profile else 'Unknown'}"
 
 
 # -------------------------------------------------------
 # Job Application (Advanced)
 # -------------------------------------------------------
 class Application(models.Model):
+
     STATUS = [
         ("Applied", "Applied"),
         ("Shortlisted", "Shortlisted"),
-        ("Test Assigned", "Test Assigned"),
-        ("Test Completed", "Test Completed"),
         ("Interview Scheduled", "Interview Scheduled"),
         ("Interview Completed", "Interview Completed"),
         ("Offered", "Offered"),
         ("Rejected", "Rejected"),
     ]
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="applications")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="applications"
+    )
 
-    # Resume & Cover letter
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.CASCADE,
+        related_name="applications"
+    )
+
+    # Files
     resume = models.FileField(upload_to="applications/resumes/", null=True, blank=True)
     cover_letter = models.TextField(null=True, blank=True)
 
-    # Applicant answers screening questions
+    # ATS answers
     screening_answers = models.JSONField(null=True, blank=True)
 
-    # Scores
-    resume_score = models.FloatField(null=True, blank=True)     # AI resume job-fit score
-    skill_test_score = models.FloatField(null=True, blank=True) # from SkillTestResult
-    overall_match_score = models.FloatField(null=True, blank=True) # combined score
+    # AI scoring
+    resume_score = models.FloatField(null=True, blank=True)
+    skill_test_score = models.FloatField(null=True, blank=True)
+    overall_match_score = models.FloatField(null=True, blank=True)
 
-    # Application status
+    # Status
     status = models.CharField(max_length=50, choices=STATUS, default="Applied")
-    applied_at = models.DateTimeField(auto_now_add=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
-
-    # Interview integration
     interview_round = models.IntegerField(default=0)
 
+    # Timestamps
+    applied_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Workflow timestamps
+    shortlisted_at = models.DateTimeField(null=True, blank=True)
+    interview_scheduled_at = models.DateTimeField(null=True, blank=True)
+    offered_at = models.DateTimeField(null=True, blank=True)
+    rejected_at = models.DateTimeField(null=True, blank=True)
+
+    # Optional feedback fields
+    feedback = models.TextField(null=True, blank=True)
+    rejection_reason = models.TextField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ("user", "job")
+        ordering = ["-applied_at"]
+
     def __str__(self):
-        return f"{self.user.email} applied for {self.job.title}"
+        return f"{self.user.email} → {self.job.title}"

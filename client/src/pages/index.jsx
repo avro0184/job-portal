@@ -20,6 +20,7 @@ import Loader from "@/components/Loader/Loader";
 import apiRequest from "@/utils/api";
 import FloatingContact from "@/components/common/FloatingContact";
 import Chatbot from "@/components/common/Chatbot";
+import JobPortalHeader from "@/dashboard/Topbar/JobPortalHeader";
 
 export default function HomePage() {
   const [loading, setLoading] = useState(true);
@@ -71,7 +72,7 @@ export default function HomePage() {
       </Head>
 
       <div className="overflow-y-scroll bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white no-scrollbar">
-        <Header />
+        <JobPortalHeader />
         {/* existing code  */}
         <Footer />
         <div className="fixed bottom-6 right-6 flex flex-col items-end space-y-4 z-50">

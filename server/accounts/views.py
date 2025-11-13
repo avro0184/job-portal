@@ -608,7 +608,19 @@ class DegreeListView(APIView):
         return Response(DegreeSerializer(degrees, many=True).data)
 
 
-class SkillListView(APIView):
+class UserCompanyInstitutionProfileAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
-        skills = Skill.objects.all().order_by("name")
-        return Response(SkillSerializer(skills, many=True).data)
+        user = request.user
+
+        # Company profiles
+        company_profiles = CompanyProfile.objects.filter(user=user)
+
+        # Institution profiles
+        institution_profiles = InstitutionProfile.objects.filter(user=user)
+
+        return Response({
+            "company_profiles": CompanyProfileSerializer(company_profiles, many=True).data,
+            "institution_profiles": InstitutionProfileSerializer(institution_profiles, many=True).data,
+        })

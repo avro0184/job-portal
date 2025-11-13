@@ -19,7 +19,7 @@ import {
   Language,
 } from "@mui/icons-material";
 import Link from "next/link";
-import { getToken, refreshToken , removeTokens } from "@/utils/auth";
+import { getToken, refreshToken, removeTokens } from "@/utils/auth";
 import apiRequest from "@/utils/api";
 import { getStatus } from "@/Redux/status/StatusSlice";
 import { useSelector, useDispatch } from "react-redux";
@@ -76,18 +76,18 @@ const DropdownUser = () => {
   };
 
 
-useEffect(() => {
-  if (userInfo && typeof window !== "undefined" && window.ReactNativeWebView) {
-    window.ReactNativeWebView.postMessage(
-      JSON.stringify({
-        type: "USER_INFO",
-        userInfo: userInfo,
-        token: getToken(), 
-      })
-    );
-  }
+  useEffect(() => {
+    if (userInfo && typeof window !== "undefined" && window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({
+          type: "USER_INFO",
+          userInfo: userInfo,
+          token: getToken(),
+        })
+      );
+    }
 
-}, [userInfo]);
+  }, [userInfo]);
 
 
 
@@ -103,12 +103,12 @@ useEffect(() => {
       <Tooltip title={userInfo?.full_name || "User"} arrow>
         <IconButton onClick={handleMenuOpen} sx={{ p: 0 }}>
           <Avatar
-  className="border-2 text-primary font-bold border-primary bg-transparent"
-  src={userInfo?.profile_image ? process.env.NEXT_PUBLIC_URL_DASHBOARD + userInfo?.profile_image : undefined}
-  sx={{ width: 40, height: 40 }}
->
-  {!userInfo?.profile_image && (userInfo?.full_name?.charAt(0).toUpperCase() || "U")}
-</Avatar>
+            className="border-2 text-primary font-bold border-primary bg-transparent"
+            src={userInfo?.profile_image ? process.env.NEXT_PUBLIC_URL_DASHBOARD + userInfo?.profile_image : undefined}
+            sx={{ width: 40, height: 40 }}
+          >
+            {!userInfo?.profile_image && (userInfo?.full_name?.charAt(0).toUpperCase() || "U")}
+          </Avatar>
 
         </IconButton>
       </Tooltip>

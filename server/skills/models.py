@@ -4,6 +4,16 @@ from django.conf import settings
 from pgvector.django import VectorField
 
 
+
+class SkillLevel(models.TextChoices):
+    NOVICE = "novice", "Novice"
+    BEGINNER = "beginner", "Beginner"
+    INTERMEDIATE = "intermediate", "Intermediate"
+    SKILLED = "skilled", "Skilled"
+    ADVANCED = "advanced", "Advanced"
+    EXPERT = "expert", "Expert"
+    MASTER = "master", "Master"
+
 # ------------------------------------------------------
 # Skill Category
 # ------------------------------------------------------
@@ -23,7 +33,6 @@ class Skill(models.Model):
         SkillCategory, on_delete=models.SET_NULL,
         null=True, blank=True, related_name="skills"
     )
-
     name = models.CharField(max_length=150, unique=True)
 
     # AI fields (future use)
@@ -57,7 +66,7 @@ class UserSkill(models.Model):
 
     # Initially Intermediate
     proficiency_percentage = models.FloatField(default=50)
-    level = models.CharField(max_length=50, default="Intermediate")
+    level = models.CharField(max_length=20, choices=SkillLevel.choices, default="Intermediate")
 
     updated_at = models.DateTimeField(auto_now=True)
 

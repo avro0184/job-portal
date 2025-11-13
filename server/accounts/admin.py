@@ -118,7 +118,5 @@ class InstitutionProfileAdmin(admin.ModelAdmin):
 
 
 
-admin.site.register(Skill)
 admin.site.register(Degree)
 admin.site.register(UserEducation)
-admin.site.register(UserSkill)

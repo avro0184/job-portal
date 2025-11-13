@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.hashers import is_password_usable
 from django.utils.translation import gettext as _
 from django.contrib.auth import authenticate
+from skills.serializers import *
 
 from .models import *
 
@@ -17,14 +18,6 @@ class DegreeSerializer(serializers.ModelSerializer):
         model = Degree
         fields = ["id", "name"]
 
-
-class UserSkillSerializer(serializers.ModelSerializer):
-    skill = SkillSerializer(read_only=True)
-    skill_id = serializers.IntegerField(write_only=True)
-
-    class Meta:
-        model = UserSkill
-        fields = ["id", "skill", "skill_id", "level"]
 
 
 
@@ -61,7 +54,7 @@ class UserEducationSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     education_items = UserEducationSerializer(many=True, read_only=True)
-    skills = UserSkillSerializer(many=True, read_only=True)
+    skills = UserSkillSerializer(source="user.skills", many=True, read_only=True)
 
     class Meta:
         model = Profile
@@ -70,7 +63,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     education_items = UserEducationSerializer(many=True, write_only=True)
-    skills = UserSkillSerializer(many=True, write_only=True)
+    skills = UserSkillSerializer(source="user.skills", many=True, write_only=True)
 
     class Meta:
         model = Profile
@@ -85,20 +78,29 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         edu_data = validated_data.pop("education_items", [])
         skill_data = validated_data.pop("skills", [])
 
-        # update simple fields
+        # -------------------------
+        # Update simple fields
+        # -------------------------
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
+        # -------------------------
+        # EDUCATION
+        # -------------------------
         UserEducation.objects.filter(profile=instance).delete()
         for edu in edu_data:
             UserEducation.objects.create(profile=instance, **edu)
 
-        UserSkill.objects.filter(profile=instance).delete()
+        # -------------------------
+        # SKILLS  (FIXED)
+        # -------------------------
+        UserSkill.objects.filter(user=instance.user).delete()
         for skill in skill_data:
-            UserSkill.objects.create(profile=instance, **skill)
+            UserSkill.objects.create(user=instance.user, **skill)
 
         return instance
+
 
 # -------------------------------------------
 # COMPANY PROFILE SERIALIZER (MAX 3)
@@ -191,8 +193,10 @@ class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(read_only=True)
     companies = CompanyProfileSerializer(many=True, read_only=True)
     institutions = InstitutionProfileSerializer(many=True, read_only=True)
-
+    roles = serializers.SerializerMethodField()
     profile_image = serializers.ImageField(required=False)
+    is_company = serializers.SerializerMethodField()
+    is_institution = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -206,6 +210,9 @@ class UserSerializer(serializers.ModelSerializer):
             "is_active",
             "is_staff",
             "profile_image",
+            "roles",
+            "is_company",
+            "is_institution",
 
             # related data
             "profile",
@@ -218,6 +225,17 @@ class UserSerializer(serializers.ModelSerializer):
             "is_staff": {"read_only": True},
             "is_active": {"read_only": True},
         }
+
+
+    def get_roles(self, obj):
+        return list(obj.roles.values_list("name", flat=True))
+    
+    def get_is_company(self, obj):
+        return obj.is_company  
+
+    def get_is_institution(self, obj):
+        return obj.is_institution  
+
 
     # ---------------------------
     # Email validation (only create)
