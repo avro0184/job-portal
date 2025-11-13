@@ -1,63 +1,97 @@
-'use client';
+import {
+  FaBriefcase,
+  FaBuilding,
+  FaGlobeAmericas,
+  FaUserCheck,
+} from "react-icons/fa";
 
-import React from 'react';
-import { Typography } from '@mui/material';
-import { motion } from 'framer-motion';
-import useTranslate from '@/hooks/useTranslation';
+const defaultStats = [
+  {
+    label: "Active Job Vacancies",
+    value: "12,345+",
+    sub: "Across all categories",
+    icon: FaBriefcase,
+  },
+  {
+    label: "Companies Hiring",
+    value: "780+",
+    sub: "From startups to enterprises",
+    icon: FaBuilding,
+  },
+  {
+    label: "Remote Friendly Roles",
+    value: "3,200+",
+    sub: "Work from anywhere",
+    icon: FaGlobeAmericas,
+  },
+  {
+    label: "New Jobs This Week",
+    value: "540+",
+    sub: "Fresh opportunities added",
+    icon: FaUserCheck,
+  },
+];
 
-
-export default function StatsSection() {
-  const { t } = useTranslate();
-
-  const stats = [
-    { value: '12,000+', label: t('Registered Students') },
-    { value: '1.5M+', label: t('MCQs Practiced') },
-    { value: '2,500+', label: t('Teachers Onboarded') },
-    { value: '1,200+', label: t('Exams Conducted') },
-  ];
-
+export default function StatsSection({ stats = defaultStats }) {
   return (
-    <motion.section
-      className="py-20 bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-black text-center"
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      viewport={{ once: true }}
-    >
-      <Typography
-        variant="h4"
-        sx={{
-          fontWeight: 800,
-          mb: 6,
-          color: 'text.primary',
-          textAlign: 'center',
-        }}
-        className='dark:text-white'
-      >
-        {t('Trusted by Thousands of Learners & Educators')}
-      </Typography>
+    <section className="w-full bg-[#111827]">
+      <div className="max-w-6xl mx-auto px-4 py-8 lg:py-10">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map((item) => {
+            const Icon = item.icon;
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto px-4">
-        {stats.map((item, index) => (
-          <motion.div
-          
-            key={index}
-            className="bg-white dark:border-primary dark:border dark:bg-gray-800 p-6 rounded-xl shadow hover:shadow-lg transition-transform hover:scale-105 text-center"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, delay: index * 0.1 }}
-            viewport={{ once: true }}
-          >
-          
-            <Typography variant="h5" sx={{ color: 'primary.main', fontWeight: 700 }}>
-              {item.value}
-            </Typography>
-            <Typography className='dark:text-white' sx={{ color: 'text.secondary', fontSize: '0.875rem', mt: 1 }}>
-              {item.label}
-            </Typography>
-          </motion.div>
-        ))}
+            return (
+              <div
+                key={item.label}
+                className="
+                  group flex items-start gap-3
+                  rounded-2xl
+                  bg-[#020617]
+                  border border-slate-700/70
+                  px-4 py-4
+                  shadow-sm
+                  hover:border-blue-500
+                  hover:bg-blue-950/40
+                  hover:shadow-lg
+                  transition
+                "
+              >
+                {/* Icon */}
+                <div
+                  className="
+                    flex h-10 w-10 items-center justify-center
+                    rounded-xl
+                    bg-slate-800
+                    text-blue-300
+                    group-hover:bg-blue-600
+                    group-hover:text-white
+                    transition
+                  "
+                >
+                  <Icon className="text-lg" />
+                </div>
+
+                {/* Text */}
+                <div className="flex flex-col">
+                  <span className="text-lg font-semibold text-white leading-tight">
+                    {item.value}
+                  </span>
+
+                  <span className="text-xs text-gray-400 mt-0.5">
+                    {item.label}
+                  </span>
+
+                  {item.sub && (
+                    <span className="text-[11px] text-gray-500 mt-1">
+                      {item.sub}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </motion.section>
+    </section>
   );
 }
