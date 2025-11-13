@@ -61,6 +61,8 @@ INSTALLED_APPS = [
     # Required by allauth
     'django.contrib.sites',
 
+     "pgvector.django",
+
     # Allauth
     'allauth',
     'allauth.account',
@@ -75,7 +77,12 @@ INSTALLED_APPS = [
     'corsheaders',
     'channels',
     'django_celery_beat',
-    'users',
+    'accounts',
+    'skills',
+    'jobs',
+    'resources',
+    'community',
+    'interviews',
 ]
 
 SITE_ID = 1
@@ -229,7 +236,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "job_server.wsgi.application"
 
 # ✅ Custom User Model
-AUTH_USER_MODEL = "users.User"  # Ensure User model exists in `users/models.py`
+AUTH_USER_MODEL = "accounts.User"  # Ensure User model exists in `users/models.py`
 
 # ✅ Database Configuration
 DATABASES = {
@@ -257,12 +264,15 @@ TIME_ZONE = 'Asia/Dhaka'
 USE_I18N = True
 USE_TZ = True
 
-# ✅ Static & Media Files
+STATICFILES_DIRS = [] 
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+ 
+
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 
 
 ACCOUNT_LOGIN_METHODS = {"email"}

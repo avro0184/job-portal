@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import {
   Menu,
   MenuItem,
@@ -86,7 +86,10 @@ useEffect(() => {
       })
     );
   }
+
 }, [userInfo]);
+
+
 
 
   const toggleLanguage = () => {
@@ -100,11 +103,13 @@ useEffect(() => {
       <Tooltip title={userInfo?.full_name || "User"} arrow>
         <IconButton onClick={handleMenuOpen} sx={{ p: 0 }}>
           <Avatar
-            className="border-2 text-primary font-bold border-primary bg-transparent"
-            sx={{ width: 40, height: 40 }}
-          >
-            {userInfo?.full_name?.charAt(0) || "U"}
-          </Avatar>
+  className="border-2 text-primary font-bold border-primary bg-transparent"
+  src={userInfo?.profile_image ? process.env.NEXT_PUBLIC_URL_DASHBOARD + userInfo?.profile_image : undefined}
+  sx={{ width: 40, height: 40 }}
+>
+  {!userInfo?.profile_image && (userInfo?.full_name?.charAt(0).toUpperCase() || "U")}
+</Avatar>
+
         </IconButton>
       </Tooltip>
 
@@ -123,7 +128,7 @@ useEffect(() => {
           className="group hover:text-white"
           onClick={handleMenuClose}
           component={Link}
-          href="/study"
+          href="/jp/feed"
         >
           <Dashboard className="mr-2 text-primary dark:text-white group-hover:text-white" />
           <span className="group-hover:text-white">{t("Dashboard")}</span>
@@ -132,7 +137,7 @@ useEffect(() => {
           className="group hover:text-white"
           onClick={handleMenuClose}
           component={Link}
-          href="/study/profile"
+          href="/jp/profile"
         >
           <AccountCircle className="mr-2 text-primary dark:text-white group-hover:text-white" />
           <span className="group-hover:text-white">{t("Profile")}</span>

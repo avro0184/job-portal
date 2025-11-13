@@ -4,17 +4,17 @@ import { Sidebar } from "./sidebar/Sidebar";
 import { DashboardProvider, useDashboardContext } from "./Provider";
 import Loader from "@/components/Loader/Loader";
 import { MobileBottomNav } from "./sidebar/SidebarItems";
+import JobPortalHeader from "./Topbar/JobPortalHeader";
 
 function LayoutBody({ children, hideBottomNav = false }) {
   const { sidebarOpen } = useDashboardContext();
-  const leftPad = sidebarOpen ? "md:pl-60" : "md:pl-20";
 
   return (
     <div className="dark:bg-gray-900 h-screen overflow-hidden relative">
-      <Sidebar />
-      <div className={`flex flex-col h-screen ${leftPad} pl-0 w-full`}>
-        <TopBar />
-        <main className="overflow-auto no-scrollbar md:px-2 h-[calc(100vh-48px)]">
+      <div className={`flex flex-col h-screen  pl-0 w-full`}>
+        {/* <TopBar /> */}
+        <JobPortalHeader />
+        <main className="overflow-auto md:w-[80%] mx-auto no-scrollbar md:px-2 h-[calc(100vh-48px)]">
           {children}
         </main>
       </div>

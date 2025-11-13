@@ -29,7 +29,7 @@ import { getToken } from "@/utils/auth";
 import { getUserInfo } from "@/Redux/auth/UserInfoSlice";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-S7DQ4FTK93";
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "";
 
 function ThemeAwareMui({ children }) {
   const { isDark } = useThemeContext();
@@ -54,10 +54,10 @@ function AppWithRedux({ Component, pageProps }) {
   // 🔑 Fetch user profile once when app mounts
   useEffect(() => {
     const token = getToken();
+    console.log(token)
+    if (!token) return;
     if (token) {
       dispatch(getUserInfo(token));
-    } else {
-      dispatch(getUserInfo(null)); // ensure state is cleared
     }
   }, [dispatch]);
 

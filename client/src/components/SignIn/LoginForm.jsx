@@ -69,6 +69,7 @@ const LoginForm = ({ onSuccess }) => {
         formData
       );
       if (result.success) {
+        console.log(result)
         // ✅ Save tokens Hybrid way
         setTokens(result.access, result.refresh);
 
@@ -87,7 +88,7 @@ const LoginForm = ({ onSuccess }) => {
         }
 
         if (onSuccess) onSuccess(result);
-        else router.push("/study");
+        else router.push("/jp/feed");
       }
     } catch (error) {
       setFormErrors({ password: error.error });

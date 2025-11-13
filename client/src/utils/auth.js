@@ -12,7 +12,7 @@ export const setTokens = (access, refresh) => {
 export const getToken = () => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("access_token");
-    return token ? decryptData(token) : null;
+    return token 
   }
   return null;
 };
@@ -20,7 +20,7 @@ export const getToken = () => {
 export const refreshToken = () => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("refresh_token");
-    return token ? decryptData(token) : null;
+    return token 
   }
   return null;
 };
@@ -54,48 +54,3 @@ export const toRoman = (num) => {
   }
   return result;
 };
-
-export const getDifficultyStyle = (level) => {
-  switch (level.toLowerCase()) {
-    case "cognitive":
-      return { bgColor: "#d1e7dd", textColor: "#0f5132" };
-    case "understanding":
-      return { bgColor: "#cff4fc", textColor: "#055160" };
-    case "applied":
-      return { bgColor: "#fff3cd", textColor: "#664d03" };
-    case "higher":
-      return { bgColor: "#f8d7da", textColor: "#842029" };
-    default:
-      return { bgColor: "#e2e3e5", textColor: "#41464b" };
-  }
-};
-
-
-import { htmlToText } from 'html-to-text';
-
-export default function cleanUsingHtmlToText(html = "") {
-  return htmlToText(html, {
-    wordwrap: false,
-    selectors: [{ selector: 'br', format: 'lineBreak' }]
-  });
-}
-
-
-export const getCorrectAnswerText =(question = {})=> {
-  return question.answers.find((a) => a.is_correct)?.text || "N/A";
-}
-
-export const extractInstitutionKeywords =(usages = [])=> {
-  const keywords = new Set();
-
-  usages.forEach((u) => {
-    if (u.group) keywords.add(u.group);
-    if (u.group_short_name) keywords.add(u.group_short_name);
-    if (u.institution) keywords.add(u.institution);
-    if (u.institution_short_name) keywords.add(u.institution_short_name);
-    if (u.subject) keywords.add(u.subject);
-    if (u.year) keywords.add(u.year);
-  });
-
-  return Array.from(keywords).join(", ");
-}

@@ -12,7 +12,7 @@ const initialState = {
 // ✅ Fetch user info
 export const getUserInfo = createAsyncThunk(
   "auth/getUserInfo",
-  async (token = null, { rejectWithValue }) => {
+  async (token, { rejectWithValue }) => {
     try {
       const response = await apiRequest(
         process.env.NEXT_PUBLIC_API_GET_USER_INFO,
@@ -20,7 +20,7 @@ export const getUserInfo = createAsyncThunk(
         token,
         null
       );
-      return { data: response, token };
+      return { data: response?.data, token };
     } catch (error) {
       return rejectWithValue(error?.message || "Failed to load profile");
     }
@@ -37,18 +37,8 @@ const userInfoSlice = createSlice({
       state.token = null;
       state.loading = false;
       state.error = null;
-    },
-    updateRemainingQuestionsLocal: (state, action) => {
-  const deduction = action.payload;
-  if (state.userInfo?.remaining_questions >= 0) {
-    state.userInfo.remaining_questions = Math.max(
-      0,
-      state.userInfo.remaining_questions - deduction
-    );
-  }
-}
-
-  },
+    } 
+   },
   extraReducers: (builder) => {
     builder
       .addCase(getUserInfo.pending, (state) => {
