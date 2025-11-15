@@ -45,7 +45,7 @@ export default function Chatbot() {
           {/* Header */}
           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
             <span className="font-semibold text-sm tracking-wide">
-              AmarProsno AI 🤖
+              Career Bot 🤖
             </span>
             <button
               onClick={() => setOpen(false)}
@@ -59,7 +59,7 @@ export default function Chatbot() {
           <div className="p-4 flex-1 overflow-y-auto space-y-3 bg-gray-50 dark:bg-gray-800 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
             {messages.length === 0 && (
               <p className="text-center text-sm text-gray-500 dark:text-gray-400 ">
-                👋 Start a conversation with AmarProsno AI
+                👋 Start a conversation with CareerBot AI
               </p>
             )}
             {messages.map((m, i) => (

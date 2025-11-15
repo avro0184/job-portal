@@ -3,6 +3,9 @@
 import os
 import sys
 
+os.environ["GRPC_VERBOSITY"] = "NONE"
+os.environ["GRPC_TRACE"] = ""
+
 
 def main():
     """Run administrative tasks."""

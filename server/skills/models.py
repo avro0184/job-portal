@@ -74,7 +74,7 @@ class UserSkill(models.Model):
         related_name="skills",
         db_index=True
     )
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE, db_index=True)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE, db_index=True , null=True, blank=True)
 
     proficiency_percentage = models.FloatField(default=50, db_index=True)
     level = models.CharField(
@@ -121,7 +121,7 @@ class UserSkill(models.Model):
 # Skill Test (Must have 15 questions)
 # ------------------------------------------------------
 class SkillTest(models.Model):
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE, related_name="tests", db_index=True)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE, related_name="tests", db_index=True , null=True, blank=True)
     title = models.CharField(max_length=255, db_index=True)
     description = models.TextField()
 
@@ -201,7 +201,7 @@ class SkillQuestion(models.Model):
 # ------------------------------------------------------
 class UserSkillTestResult(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE, db_index=True)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE, db_index=True , null=True, blank=True)
     test = models.ForeignKey(SkillTest, on_delete=models.CASCADE, db_index=True)
 
     score = models.FloatField(default=0, db_index=True)
@@ -240,7 +240,7 @@ class UserSkillTestResult(models.Model):
 # ------------------------------------------------------
 class UserSkillProgress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE, db_index=True)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE, db_index=True , null=True, blank=True)
 
     proficiency_percentage = models.FloatField(db_index=True)
     timestamp = models.DateTimeField(auto_now_add=True, db_index=True)

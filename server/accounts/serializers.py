@@ -19,6 +19,24 @@ class DegreeSerializer(serializers.ModelSerializer):
         fields = ["id", "name"]
 
 
+class UserExperienceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserExperience
+        fields = ["id", "job_title", "company", "location",
+                  "start_date", "end_date", "description"]
+
+
+class UserProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProject
+        fields = ["id", "title", "description", "technologies", "link"]
+
+
+class UserCertificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserCertification
+        fields = ["id", "title", "issuer", "date_issued",
+                  "credential_id", "credential_url"]
 
 
 class UserEducationSerializer(serializers.ModelSerializer):
@@ -55,15 +73,25 @@ class UserEducationSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     education_items = UserEducationSerializer(many=True, read_only=True)
     skills = UserSkillSerializer(source="user.skills", many=True, read_only=True)
+    experiences = UserExperienceSerializer(many=True, read_only=True)
+    projects = UserProjectSerializer(many=True, read_only=True)
+    certifications = UserCertificationSerializer(many=True, read_only=True)
+    completion_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
         fields = "__all__"
 
+    def get_completion_percentage(self, obj):
+        return obj.completion_percentage
+
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     education_items = UserEducationSerializer(many=True, write_only=True)
     skills = UserSkillSerializer(source="user.skills", many=True, write_only=True)
+    experiences = UserExperienceSerializer(many=True, write_only=True, required=False)
+    projects = UserProjectSerializer(many=True, write_only=True, required=False)
+    certifications = UserCertificationSerializer(many=True, write_only=True, required=False)
 
     class Meta:
         model = Profile
@@ -72,32 +100,69 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "expected_salary", "is_job_ready", "cv_text",
             "resume_file", "portfolio_url", "github_url",
             "linkedin_url", "education_items", "skills",
+            "experiences", "projects", "certifications"
         ]
 
     def update(self, instance, validated_data):
         edu_data = validated_data.pop("education_items", [])
-        skill_data = validated_data.pop("skills", [])
+        user_data = validated_data.pop("user", {})
+        skill_data = user_data.get("skills", [])
+        exp_data = validated_data.pop("experiences", [])
+        proj_data = validated_data.pop("projects", [])
+        cert_data = validated_data.pop("certifications", [])
 
-        # -------------------------
-        # Update simple fields
-        # -------------------------
+        # Update Profile fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
-        # -------------------------
-        # EDUCATION
-        # -------------------------
+        # -----------------------------
+        # EDUCATION — Replace All
+        # -----------------------------
         UserEducation.objects.filter(profile=instance).delete()
         for edu in edu_data:
             UserEducation.objects.create(profile=instance, **edu)
 
-        # -------------------------
-        # SKILLS  (FIXED)
-        # -------------------------
+        # -----------------------------
+        # SKILLS — Replace All (SAFE)
+        # -----------------------------
         UserSkill.objects.filter(user=instance.user).delete()
+
         for skill in skill_data:
-            UserSkill.objects.create(user=instance.user, **skill)
+            skill_id = skill.get("skill")
+            percentage = skill.get("proficiency_percentage", 50)
+            level = skill.get("level", "intermediate")
+
+            if skill_id:  # Ensure no null skill
+                UserSkill.objects.update_or_create(
+                    user=instance.user,
+                    skill_id=skill_id,
+                    defaults={
+                        "proficiency_percentage": percentage,
+                        "level": level
+                    }
+                )
+
+        # -----------------------------
+        # EXPERIENCE — Replace All
+        # -----------------------------
+        UserExperience.objects.filter(profile=instance).delete()
+        for exp in exp_data:
+            UserExperience.objects.create(profile=instance, **exp)
+
+        # -----------------------------
+        # PROJECTS — Replace All
+        # -----------------------------
+        UserProject.objects.filter(profile=instance).delete()
+        for proj in proj_data:
+            UserProject.objects.create(profile=instance, **proj)
+
+        # -----------------------------
+        # CERTIFICATIONS — Replace All
+        # -----------------------------
+        UserCertification.objects.filter(profile=instance).delete()
+        for cert in cert_data:
+            UserCertification.objects.create(profile=instance, **cert)
 
         return instance
 

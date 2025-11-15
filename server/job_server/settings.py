@@ -77,12 +77,14 @@ INSTALLED_APPS = [
     'corsheaders',
     'channels',
     'django_celery_beat',
-    'accounts',
-    'skills',
-    'jobs',
-    'resources',
+    'accounts.apps.AccountsConfig',
+    'skills.apps.SkillsConfig',
+    'jobs.apps.JobsConfig',
+    'resources.apps.ResourcesConfig',
     'community',
     'interviews',
+    "careerbot",
+    "careerroadmap",
 ]
 
 SITE_ID = 1
@@ -345,3 +347,4 @@ LOGGING = {
     },
 }
 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyAbEhpn71nttmD1GAs45q4SmbZdDUPMzyU")

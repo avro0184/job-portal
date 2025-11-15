@@ -39,11 +39,10 @@ export function Sidebar(props) {
         )}
 
         {/* Sidebar header stays fixed */}
-        <SidebarHeader />
 
         {/* ✅ Scrollable items */}
         <div className={`flex-1 overflow-y-auto no-scrollbar ${css.scrollbar} pb-40`}>
-          <SidebarItems />
+          {/* <SidebarItems /> */}
         </div>
       </div>
     </aside>

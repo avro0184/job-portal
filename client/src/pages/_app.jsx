@@ -54,7 +54,6 @@ function AppWithRedux({ Component, pageProps }) {
   // 🔑 Fetch user profile once when app mounts
   useEffect(() => {
     const token = getToken();
-    console.log(token)
     if (!token) return;
     if (token) {
       dispatch(getUserInfo(token));

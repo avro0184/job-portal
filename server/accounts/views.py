@@ -230,22 +230,22 @@ class ProfileMeAPIView(APIView):
         }, status=status.HTTP_200_OK)
 
     def put(self, request):
-        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        serializer = ProfileUpdateSerializer(
+            request.user.profile,
+            data=request.data,
+            partial=True
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"success": True, "user": serializer.data})
-    
+        return Response({"success": True, "data": UserSerializer(request.user).data})
+
+
     def patch(self, request):
-        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        profile = request.user.profile
+        serializer = ProfileUpdateSerializer(profile, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"success": True, "user": serializer.data})
-    
-    def delete(self, request):
-        user = request.user
-        user.is_delete_requested = True
-        user.save()
-        return Response({"success": True, "message": "User deleted."})
+        return Response({"success": True, "profile": ProfileSerializer(profile).data})
 
 
 
@@ -624,3 +624,34 @@ class UserCompanyInstitutionProfileAPIView(APIView):
             "company_profiles": CompanyProfileSerializer(company_profiles, many=True).data,
             "institution_profiles": InstitutionProfileSerializer(institution_profiles, many=True).data,
         })
+
+
+
+from .extract_cv import parse_cv_file
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+
+class ExtractCvAndAnalysisData(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        file = request.FILES.get("resume_file")
+
+        if not file:
+            return Response({"success": False, "error": "No file provided."}, status=400)
+
+        # Save uploaded file temporarily
+        saved_path = default_storage.save(file.name, ContentFile(file.read()))
+        abs_path = default_storage.path(saved_path)
+
+        try:
+            # NOW send file path to your Gemini extractor
+            data = parse_cv_file(abs_path)
+        except Exception as e:
+            return Response({"success": False, "error": str(e)}, status=500)
+        finally:
+            # Clean temp file
+            default_storage.delete(saved_path)
+
+        return Response({"success": True, "data": data}, status=200)

@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
 const GlobalMessage = () => {
-  const message = useSelector((state) => state.examName.message);
+  const message = ""
   useEffect(() => {
     if (message ) {
       toast.success(message); // Show toast only if message is new

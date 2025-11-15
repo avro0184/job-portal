@@ -1,13 +1,8 @@
-# resources/models.py
-
 from django.db import models
 from skills.models import Skill
 from pgvector.django import VectorField
 
 
-# -----------------------------------------------------------
-# Resource Categories
-# -----------------------------------------------------------
 class ResourceCategory(models.Model):
     name = models.CharField(max_length=150, unique=True)
     description = models.TextField(null=True, blank=True)
@@ -16,14 +11,11 @@ class ResourceCategory(models.Model):
         return self.name
 
 
-# -----------------------------------------------------------
-# Main Learning Resource
-# -----------------------------------------------------------
 class LearningResource(models.Model):
 
     COSTS = [
         ("Free", "Free"),
-        ("Paid", "Paid")
+        ("Paid", "Paid"),
     ]
 
     RESOURCE_TYPES = [
@@ -44,6 +36,7 @@ class LearningResource(models.Model):
         ("Master", "Master"),
     ]
 
+    # ---- Basic Information ----
     title = models.CharField(max_length=300)
     platform = models.CharField(max_length=200)
     instructor = models.CharField(max_length=150, null=True, blank=True)
@@ -55,6 +48,7 @@ class LearningResource(models.Model):
     resource_type = models.CharField(max_length=50, choices=RESOURCE_TYPES, default="Course")
     level = models.CharField(max_length=20, choices=LEVELS, default="Beginner")
 
+    # ---- Category ----
     category = models.ForeignKey(
         ResourceCategory,
         on_delete=models.SET_NULL,
@@ -63,16 +57,20 @@ class LearningResource(models.Model):
         related_name="resources"
     )
 
+    # ---- Relationship with Skills ----
     related_skills = models.ManyToManyField(Skill, blank=True, related_name="learning_resources")
 
+    # ---- Metadata ----
     duration_hours = models.FloatField(null=True, blank=True)
     rating = models.FloatField(default=0)
     learners_count = models.PositiveIntegerField(default=0)
 
     description = models.TextField(null=True, blank=True)
 
-    # AI Metadata
     ai_vector = VectorField(dimensions=768, null=True, blank=True)
+
+    skill_vector = VectorField(dimensions=768, null=True, blank=True)
+
     ai_keywords = models.TextField(null=True, blank=True)
     ai_summary = models.TextField(null=True, blank=True)
 
@@ -80,19 +78,23 @@ class LearningResource(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["title"]),
+            models.Index(fields=["platform"]),
+        ]
+
     def __str__(self):
         return self.title
 
 
-# -----------------------------------------------------------
-# Resource Progress Tracking
-# -----------------------------------------------------------
 class ResourceProgress(models.Model):
     user = models.ForeignKey(
         "accounts.User",
         on_delete=models.CASCADE,
         related_name="resource_progress"
     )
+
     resource = models.ForeignKey(
         LearningResource,
         on_delete=models.CASCADE,
@@ -103,6 +105,9 @@ class ResourceProgress(models.Model):
     is_completed = models.BooleanField(default=False)
 
     last_accessed = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("user", "resource")
 
     def __str__(self):
         return f"{self.user.email} progress on {self.resource.title}"

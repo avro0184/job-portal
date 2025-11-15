@@ -80,8 +80,8 @@ class UserEducation(models.Model):
     profile = models.ForeignKey("Profile", on_delete=models.CASCADE, related_name="education_items")
     degree = models.ForeignKey(Degree, on_delete=models.SET_NULL, null=True)
     institution = models.CharField(max_length=255)
-    year_start = models.IntegerField()
-    year_end = models.IntegerField()
+    year_start = models.CharField(max_length=50)
+    year_end = models.CharField(max_length=50)
 
     def __str__(self):
         return f"{self.degree} at {self.institution}"
@@ -114,10 +114,61 @@ class Profile(models.Model):
     ai_keywords = models.TextField(null=True, blank=True)
     ai_summary = models.TextField(null=True, blank=True)
 
+
+    last_cv_updated = models.DateTimeField(auto_now=True, db_index=True , null=True, blank=True)
+
+    summary_text = models.TextField(null=True, blank=True)
+
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Profile of {self.user.email}"
+    
+    @property
+    def completion_percentage(self):
+        score = 0
+
+        # ---- Basic Info ----
+        if self.user.full_name and self.user.email:
+            score += 5
+        if self.location:
+            score += 5
+
+        # ---- Bio ----
+        if self.bio:
+            score += 10
+
+        # ---- Career Goal ----
+        if self.career_goal:
+            score += 10
+
+        # ---- Education ----
+        if self.education_items.exists():
+            score += 15
+
+        # ---- Skills ----
+        if self.user.skills.exists():   # If using UserSkill model
+            score += 15
+
+        # ---- Experience ----
+        if self.experiences.exists():
+            score += 15
+
+        # ---- Projects ----
+        if self.projects.exists():
+            score += 10
+
+        # ---- Certifications ----
+        if self.certifications.exists():
+            score += 5
+
+        # ---- CV ----
+        if self.cv_text or self.resume_file:
+            score += 10
+
+        return min(score, 100)
+
 
 
 # ----------------------------------------------------------
@@ -170,3 +221,50 @@ class InstitutionProfile(models.Model):
         return self.institution_name
     
 
+
+
+class UserExperience(models.Model):
+    profile = models.ForeignKey("Profile", on_delete=models.CASCADE, related_name="experiences")
+
+    job_title = models.CharField(max_length=255)
+    company = models.CharField(max_length=255)
+    location = models.CharField(max_length=255, null=True, blank=True)
+
+    start_date = models.CharField(max_length=50)   # Using string for flexible date formats
+    end_date = models.CharField(max_length=50)
+
+    description = models.TextField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.job_title} at {self.company}"
+
+
+class UserProject(models.Model):
+    profile = models.ForeignKey("Profile", on_delete=models.CASCADE, related_name="projects")
+
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    technologies = models.CharField(max_length=500, null=True, blank=True)
+    link = models.URLField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+class UserCertification(models.Model):
+    profile = models.ForeignKey("Profile", on_delete=models.CASCADE, related_name="certifications")
+
+    title = models.CharField(max_length=255)
+    issuer = models.CharField(max_length=255, null=True, blank=True)
+    date_issued = models.CharField(max_length=50, null=True, blank=True)
+    credential_id = models.CharField(max_length=255, null=True, blank=True)
+    credential_url = models.URLField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

@@ -119,7 +119,7 @@ class UserSkillListCreateView(APIView):
 
     def get(self, request):
         skills = UserSkill.objects.filter(user=request.user)
-        return Response(UserSkillSerializer(skills, many=True).data)
+        return Response({"success": True, "data": UserSkillSerializer(skills, many=True).data})
 
     def post(self, request):
         serializer = UserSkillSerializer(data=request.data, context={"request": request})

@@ -14,4 +14,6 @@ urlpatterns = [
     path("tests/<int:test_id>/submit/", SubmitSkillTestView.as_view(), name="skill-test-submit"),
 
     path("progress/<int:skill_id>/", UserSkillProgressView.as_view(), name="skill-progress"),
+
+    
 ]

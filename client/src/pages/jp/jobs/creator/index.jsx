@@ -13,6 +13,7 @@ import {
     TextField,
     IconButton,
     Autocomplete,
+    CircularProgress,
 } from "@mui/material";
 
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -76,7 +77,7 @@ export default function JobCreatorPage() {
     // ----------------------------------
     const fetchSkills = async () => {
         const res = await apiRequest("/dropdown/skills/", "GET", token);
-        setSkills(res); // [{id, name}]
+        setSkills(res?.data); // [{id, name}]
     };
 
     const [CompanyProfile, setCompanyProfile] = useState([]);
@@ -87,13 +88,13 @@ export default function JobCreatorPage() {
         setCompanyProfile(res?.company_profiles); // [{id, name}]
     };
 
-    console.log(CompanyProfile)
 
     // ----------------------------------
     // FETCH JOBS CREATED BY COMPANY
     // ----------------------------------
     const fetchJobs = async () => {
         const res = await apiRequest("/jobs/creator/", "GET", token);
+        console.log(res)
         setJobs(res.jobs);
     };
 
@@ -106,34 +107,39 @@ export default function JobCreatorPage() {
     // ----------------------------------
     // SAVE JOB (CREATE / EDIT)
     // ----------------------------------
+
+    const [saveloading, setSaveloading] = useState(false);
     const saveJob = async () => {
-  const payload = {
-    ...form,
-    required_skill_ids: form.required_skills.map((s) => s.id),
-  };
+        const payload = {
+            ...form,
+            required_skill_ids: form.required_skills.map((s) => s.id),
+        };
 
-  setFormErrors({}); // clear old errors
+        setFormErrors({}); // clear old errors
+        setSaveloading(true);
 
-  try {
-    if (isEditing) {
-      await apiRequest(`/jobs/${form.id}/`, "PUT", token, payload);
-    } else {
-      await apiRequest(`/jobs/`, "POST", token, payload);
-    }
+        try {
+            if (isEditing) {
+                const response = await apiRequest(`/jobs/${form.id}/`, "PUT", token, payload);
+                if (response.success) {
+                    fetchJobs();
+                    setModalOpen(false);
+                }
+            } else {
+                const response = await apiRequest(`/jobs/`, "POST", token, payload);
+                if (response.success) {
+                    fetchJobs();
+                    setModalOpen(false);
+                }
+            }
 
-    // success:
-    setModalOpen(false);
-    fetchJobs();
-
-  } catch (err) {
-    console.log("Backend Errors:", err);
-
-    // DRF validation errors look like: { title: ["This field is required"] }
-    setFormErrors(err);
-
-    // ❗ DO NOT CLOSE MODAL — user must fix errors
-  }
-};
+        } catch (err) {
+            setFormErrors(err);
+        } finally {
+            setModalOpen(false);
+            setSaveloading(false);
+        }
+    };
 
 
     // ----------------------------------
@@ -195,11 +201,12 @@ export default function JobCreatorPage() {
     };
 
     useEffect(() => {
-        if (!userInfo?.is_company ) {
-            router.push("/jp/jobs");
-        }
+        // if (!userInfo?.is_company ) {
+        //     router.push("/jp/jobs");
+        // }
     }, [userInfo]);
 
+    console.log(skills)
 
     return (
         <Grid container p={3} spacing={3}>
@@ -221,123 +228,123 @@ export default function JobCreatorPage() {
 
             {/* JOB LIST */}
             {/* JOB LIST */}
-<Grid item xs={12}>
-  <Grid container spacing={2}>
-    {jobs.map((job) => (
-      <Grid item xs={12} md={6} key={job.id}>
-        <Card
-          onClick={() => openPipeline(job)}
-          sx={{
-            p: 2,
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            backdropFilter: "blur(10px)",
-            borderRadius: 3,
-            cursor: "pointer",
-            transition: "0.25s",
-            "&:hover": {
-              transform: "translateY(-5px)",
-              borderColor: "#00e676",
-              boxShadow: "0 4px 25px rgba(0, 230, 118, 0.25)",
-            },
-          }}
-        >
-          {/* HEADER SECTION */}
-          <Box display="flex" alignItems="center" gap={2}>
-            <img
-              src={job.company_info?.logo}
-              alt="Logo"
-              style={{
-                width: 50,
-                height: 50,
-                borderRadius: 8,
-                objectFit: "cover",
-                border: "1px solid #333",
-              }}
-            />
+            <Grid item xs={12}>
+                <Grid container spacing={2}>
+                    {jobs.map((job) => (
+                        <Grid item xs={12} md={6} key={job.id}>
+                            <Card
+                                onClick={() => openPipeline(job)}
+                                sx={{
+                                    p: 2,
+                                    background: "rgba(255,255,255,0.05)",
+                                    border: "1px solid rgba(255,255,255,0.1)",
+                                    backdropFilter: "blur(10px)",
+                                    borderRadius: 3,
+                                    cursor: "pointer",
+                                    transition: "0.25s",
+                                    "&:hover": {
+                                        transform: "translateY(-5px)",
+                                        borderColor: "#00e676",
+                                        boxShadow: "0 4px 25px rgba(0, 230, 118, 0.25)",
+                                    },
+                                }}
+                            >
+                                {/* HEADER SECTION */}
+                                <Box display="flex" alignItems="center" gap={2}>
+                                    <img
+                                        src={process.env.NEXT_PUBLIC_URL_DASHBOARD + job.company_info?.logo}
+                                        alt="Logo"
+                                        style={{
+                                            width: 50,
+                                            height: 50,
+                                            borderRadius: 8,
+                                            objectFit: "cover",
+                                            border: "1px solid #333",
+                                        }}
+                                    />
 
-            <Box>
-              <Typography variant="h6" sx={{ color: "#00e676", fontWeight: "bold" }}>
-                {job.title}
-              </Typography>
+                                    <Box>
+                                        <Typography variant="h6" sx={{ color: "#00e676", fontWeight: "bold" }}>
+                                            {job.title}
+                                        </Typography>
 
-              <Typography variant="body2" sx={{ color: "gray" }}>
-                {job.company_info?.company_name}
-              </Typography>
+                                        <Typography variant="body2" sx={{ color: "gray" }}>
+                                            {job.company_info?.company_name}
+                                        </Typography>
 
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                📍 {job.location}
-              </Typography>
-            </Box>
-          </Box>
+                                        <Typography variant="body2" sx={{ mt: 1 }}>
+                                            📍 {job.location}
+                                        </Typography>
+                                    </Box>
+                                </Box>
 
-          <Divider sx={{ my: 2, borderColor: "#333" }} />
+                                <Divider sx={{ my: 2, borderColor: "#333" }} />
 
-          {/* TAG SECTION */}
-          <Box display="flex" flexWrap="wrap" gap={1}>
+                                {/* TAG SECTION */}
+                                <Box display="flex" flexWrap="wrap" gap={1}>
 
-            {/* Experience levels */}
-            {job.experience_level.map((lvl, i) => (
-              <Chip key={i} label={lvl} size="small" sx={{ bgcolor: "#222", color: "#00e676" }} />
-            ))}
+                                    {/* Experience levels */}
+                                    {job.experience_level.map((lvl, i) => (
+                                        <Chip key={i} label={lvl} size="small" sx={{ bgcolor: "#222", color: "#00e676" }} />
+                                    ))}
 
-            {/* Job Types */}
-            {job.job_type.map((type, i) => (
-              <Chip key={i} label={type} size="small" sx={{ bgcolor: "#111", border: "1px solid #333" }} />
-            ))}
+                                    {/* Job Types */}
+                                    {job.job_type.map((type, i) => (
+                                        <Chip key={i} label={type} size="small" sx={{ bgcolor: "#111", border: "1px solid #333" }} />
+                                    ))}
 
-            {/* Employment modes */}
-            {job.employment_mode.map((mode, i) => (
-              <Chip
-                key={i}
-                label={mode}
-                size="small"
-                sx={{ bgcolor: "rgba(0,230,118,0.1)", color: "#00e676" }}
-              />
-            ))}
-          </Box>
+                                    {/* Employment modes */}
+                                    {job.employment_mode.map((mode, i) => (
+                                        <Chip
+                                            key={i}
+                                            label={mode}
+                                            size="small"
+                                            sx={{ bgcolor: "rgba(0,230,118,0.1)", color: "#00e676" }}
+                                        />
+                                    ))}
+                                </Box>
 
-          {/* SKILLS */}
-          <Box mt={2} display="flex" flexWrap="wrap" gap={1}>
-            {job.required_skills.map((skill) => (
-              <Chip
-                key={skill.id}
-                label={skill.name}
-                size="small"
-                sx={{ bgcolor: "#1f1f1f", border: "1px solid #333" }}
-              />
-            ))}
-          </Box>
+                                {/* SKILLS */}
+                                <Box mt={2} display="flex" flexWrap="wrap" gap={1}>
+                                    {job.required_skills.map((skill) => (
+                                        <Chip
+                                            key={skill.id}
+                                            label={skill.name}
+                                            size="small"
+                                            sx={{ bgcolor: "#1f1f1f", border: "1px solid #333" }}
+                                        />
+                                    ))}
+                                </Box>
 
-          {/* SALARY */}
-          <Typography sx={{ mt: 2, fontSize: 14 }}>
-            💰 Salary:{" "}
-            <b>
-              {job.salary_min} – {job.salary_max} {job.salary_currency}
-            </b>
-          </Typography>
+                                {/* SALARY */}
+                                <Typography sx={{ mt: 2, fontSize: 14 }}>
+                                    💰 Salary:{" "}
+                                    <b>
+                                        {job.salary_min} – {job.salary_max} {job.salary_currency}
+                                    </b>
+                                </Typography>
 
-          {/* FOOTER ACTIONS */}
-          <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
-            <Typography fontSize={13}>
-              Applicants: <b>{job.applicants_count}</b>
-            </Typography>
+                                {/* FOOTER ACTIONS */}
+                                <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
+                                    <Typography fontSize={13}>
+                                        Applicants: <b>{job.applicants_count}</b>
+                                    </Typography>
 
-            <Box display="flex" gap={1}>
-              <IconButton sx={{ color: "orange" }} onClick={(e) => { e.stopPropagation(); openEdit(job); }}>
-                <EditIcon />
-              </IconButton>
+                                    <Box display="flex" gap={1}>
+                                        <IconButton sx={{ color: "orange" }} onClick={(e) => { e.stopPropagation(); openEdit(job); }}>
+                                            <EditIcon />
+                                        </IconButton>
 
-              <IconButton sx={{ color: "red" }} onClick={(e) => { e.stopPropagation(); setDeleteId(job.id); }}>
-                <DeleteIcon />
-              </IconButton>
-            </Box>
-          </Box>
-        </Card>
-      </Grid>
-    ))}
-  </Grid>
-</Grid>
+                                        <IconButton sx={{ color: "red" }} onClick={(e) => { e.stopPropagation(); setDeleteId(job.id); }}>
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </Box>
+                                </Box>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Grid>
 
 
             {/* CREATE / EDIT MODAL */}
@@ -372,18 +379,31 @@ export default function JobCreatorPage() {
 
 
                     <Autocomplete
-                        options={CompanyProfile}
-                        getOptionLabel={(option) => option.company_name}
+                        options={Array.isArray(CompanyProfile) ? CompanyProfile : []}
+                        getOptionLabel={(option) => option?.company_name || ""}
+
                         value={
-                            CompanyProfile.find((c) => c.id === form.company_profile) || null
+                            Array.isArray(CompanyProfile)
+                                ? CompanyProfile.find((c) => c.id === form.company_profile) || null
+                                : null
                         }
+
                         onChange={(_, value) =>
-                            setForm({ ...form, company_profile: value ? value.id : null })
+                            setForm({
+                                ...form,
+                                company_profile: value ? value.id : null,
+                            })
                         }
+
                         renderInput={(params) => (
-                            <TextField {...params} label="Select Company Profile" sx={{ mb: 2 }} />
+                            <TextField
+                                {...params}
+                                label="Select Company Profile"
+                                sx={{ mb: 2 }}
+                            />
                         )}
                     />
+
 
 
                     {/* Title */}
@@ -560,9 +580,19 @@ export default function JobCreatorPage() {
                         onChange={(e) => setForm({ ...form, screening_questions: e.target.value })}
                     />
 
-                    <Button variant="contained" fullWidth onClick={saveJob}>
-                        {isEditing ? "Update Job" : "Create Job"}
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={saveJob}
+                        disabled={saveloading} // disable while loading
+                    >
+                        {saveloading ? (
+                            <CircularProgress size={22} sx={{ color: "white" }} />
+                        ) : (
+                            isEditing ? "Update Job" : "Create Job"
+                        )}
                     </Button>
+
                 </Box>
             </Modal>
 

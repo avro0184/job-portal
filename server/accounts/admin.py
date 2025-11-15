@@ -120,3 +120,4 @@ class InstitutionProfileAdmin(admin.ModelAdmin):
 
 admin.site.register(Degree)
 admin.site.register(UserEducation)
+admin.site.register(Profile)

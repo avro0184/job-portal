@@ -12,7 +12,7 @@ export function SidebarHeader() {
         router.push('/');
       }}
       className="text-base font-bold dark:text-white mt-3 text-center hover:underline text-primary">
-        আমার <br /> প্রশ্ন
+        
       </h1>
     </div>
   );

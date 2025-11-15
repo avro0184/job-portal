@@ -21,11 +21,9 @@ import {
 import Link from "next/link";
 import { getToken, refreshToken, removeTokens } from "@/utils/auth";
 import apiRequest from "@/utils/api";
-import { getStatus } from "@/Redux/status/StatusSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { setLanguage } from "@/Redux/Language/languageSlice";
 import toast from "react-hot-toast";
-import { decryptData } from "@/utils/decrypt";
 import useTranslate from "@/hooks/useTranslation";
 import Cookies from "js-cookie";
 import { useThemeContext } from "@/context/ThemeProvider";
@@ -128,7 +126,7 @@ const DropdownUser = () => {
           className="group hover:text-white"
           onClick={handleMenuClose}
           component={Link}
-          href="/jp/feed"
+          href="/jp"
         >
           <Dashboard className="mr-2 text-primary dark:text-white group-hover:text-white" />
           <span className="group-hover:text-white">{t("Dashboard")}</span>

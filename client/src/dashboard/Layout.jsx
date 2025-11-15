@@ -18,7 +18,7 @@ function LayoutBody({ children, hideBottomNav = false }) {
           {children}
         </main>
       </div>
-      {!hideBottomNav && <MobileBottomNav />}
+      {/* {!hideBottomNav && <MobileBottomNav />} */}
     </div>
   );
 }

@@ -51,6 +51,6 @@ urlpatterns = [
 
     
     path("user-comapay-and-institution-profile/", UserCompanyInstitutionProfileAPIView.as_view()),
-
+    path("extract-cv/", ExtractCvAndAnalysisData.as_view()),
 
 ]

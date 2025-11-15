@@ -1,70 +1,60 @@
-'use client';
+"use client";
+import { Box, Container, Typography, Button } from "@mui/material";
 
-import React from 'react';
-import { Typography, Button } from '@mui/material';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import useTranslate from '@/hooks/useTranslation';
-
-export default function CTASection() {
-  const { t } = useTranslate();
-
+export default function CTA() {
   return (
-    <motion.div
-      className="bg-gradient-to-br from-purple-100 via-green-50 to-white dark:from-gray-800 dark:via-gray-900 dark:to-black py-16 text-center flex  flex-col justify-center items-center gap-3 px-4"
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      viewport={{ once: true }}
+    <Box
+      component="section"
+      sx={{
+        py: { xs: 10, md: 14 },
+        background: (theme) =>
+          theme.palette.mode === "dark"
+            ? "linear-gradient(135deg, #1e293b, #0f172a)"
+            : "linear-gradient(135deg, #2563eb, #1d4ed8)",
+        color: "white",
+        textAlign: "center",
+      }}
     >
-      <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
-        {t('Start preparing, my question with help')}
-      </h2>
+      <Container maxWidth="md">
+        
+        {/* Heading */}
+        <Typography
+          variant="h3"
+          fontWeight={800}
+          sx={{ mb: 3, lineHeight: 1.3 }}
+        >
+          Ready to Start Your Career Journey?
+        </Typography>
 
-      <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-        {t("Whether you're a student preparing for exams or a teacher building smart test sets — Amar Prosno has you covered.")}
-      </p>
+        {/* Subtext */}
+        <Typography
+          variant="h6"
+          sx={{ mb: 5, opacity: 0.9 }}
+        >
+          Join thousands of professionals finding new opportunities every day.
+        </Typography>
 
-      <div className="flex flex-wrap justify-center gap-4">
-        <Link href="/study" passHref>
-          <Button
-            variant="contained"
-            size="large"
-            sx={{
-              backgroundColor: '#6754e8',
-              color: '#fff',
-              px: 3,
-              py: 1.5,
-              borderRadius: '8px',
-              '&:hover': {
-                backgroundColor: '#5842d8',
-              },
-            }}
-          >
-            {t("I'm a Student")}
-          </Button>
-        </Link>
+        {/* Button */}
+        <Button
+          variant="contained"
+          size="large"
+          sx={{
+            backgroundColor: "white",
+            color: "primary.main",
+            fontWeight: 700,
+            px: 6,
+            py: 1.5,
+            fontSize: "1.1rem",
+            borderRadius: 3,
+            "&:hover": {
+              backgroundColor: "#f1f5f9",
+            },
+          }}
+        >
+          Create Account
+        </Button>
 
-        <Link href="/study" passHref>
-          <Button
-            variant="outlined"
-            size="large"
-            sx={{
-              color: '#6754e8',
-              borderColor: '#6754e8',
-              px: 3,
-              py: 1.5,
-              borderRadius: '8px',
-              '&:hover': {
-                backgroundColor: '#f3f0ff',
-                borderColor: '#6754e8',
-              },
-            }}
-          >
-            {t("I'm a Teacher")}
-          </Button>
-        </Link>
-      </div>
-    </motion.div>
+      </Container>
+    </Box>
   );
 }

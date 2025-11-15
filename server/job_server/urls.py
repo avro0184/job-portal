@@ -10,6 +10,9 @@ urlpatterns = [
     path('api/auth/' , include('accounts.urls')),
     path('api/' , include('skills.urls')),
     path('api/' , include('jobs.urls')),
+    path('api/' , include('careerroadmap.urls')),
+    path('api/' , include('careerbot.urls')),
+    path('api/' , include('resources.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
